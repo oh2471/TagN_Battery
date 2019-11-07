@@ -1,13 +1,29 @@
+
 docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/battery/
+export CORE_PEER_ADDRESS=peer1.org1.battery.com:7051
+docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/battery/
+
 export CORE_PEER_LOCALMSPID=Org2MSP
 export PEER0_ORG2_CA=/etc/hyperledger/crypto/peerOrganizations/org2.battery.com/peers/peer0.org2.battery.com/tls/ca.crt
 export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
 export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto/peerOrganizations/org2.battery.com/users/Admin@org2.battery.com/msp
 export CORE_PEER_ADDRESS=peer0.org2.battery.com:7051
 docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/battery/
+export CORE_PEER_ADDRESS=peer1.org2.battery.com:7051
+docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/battery/
 
-#export ORDERER_CA=/etc/hyperledger/crypto/ordererOrganizations/battery.com/orderers/orderer.battery.com/msp/tlscacerts/tlsca.battery.com-cert.pem
+
+export CORE_PEER_LOCALMSPID=Org1MSP
+export PEER0_ORG1_CA=/etc/hyperledger/crypto/peerOrganizations/org1.battery.com/peers/peer0.org1.battery.com/tls/ca.crt
+export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
+export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto/peerOrganizations/org1.battery.com/users/Admin@org1.battery.com/msp
+export CORE_PEER_ADDRESS=peer0.org1.battery.com:7051
+
+export ORDERER_CA=/etc/hyperledger/crypto/ordererOrganizations/battery.com/orderers/orderer.battery.com/msp/tlscacerts/tlsca.battery.com-cert.pem
 docker exec cli peer chaincode instantiate -o orderer.battery.com:7050 -C battery -n elca -v 1.0 -c '{"Args":["init"]}' -P "OR('Org1MSP.member','Org2MSP.member')" --collections-config /opt/gopath/src/github.com/battery/collections_config.json
+
+
+
 
 #--tls --cafile $ORDERER_CA 
 
@@ -21,7 +37,7 @@ docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["readMarble
 
 
 
-#docker logs peer0.org1.battery.com 2>&1 | grep -i -a -E 'private|pvt|privdata'
+#docker logs peer0.org2.battery.com 2>&1 | grep -i -a -E 'private|pvt|privdata'
 
 echo '-------------------------------------END-------------------------------------'
 

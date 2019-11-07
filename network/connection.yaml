@@ -14,6 +14,7 @@ channels:
         - orderer.battery.com
         peers:
             peer0.org1.battery.com: {}
+            peer0.org2.battery.com: {}
 organizations:
     Org1:
         mspid: Org1MSP
@@ -34,6 +35,10 @@ peers:
     peer0.org1.battery.com:
         url: grpc://localhost:7051
     peer0.org2.battery.com:
+        url: grpc://localhost:7051
+    peer1.org1.battery.com:
+        url: grpc://localhost:7051
+    peer1.org2.battery.com:
         url: grpc://localhost:7051
 certificateAuthorities:
     ca.battery.com:
