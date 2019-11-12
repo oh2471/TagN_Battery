@@ -1,5 +1,5 @@
 {
-    "name": "battery-network",
+    "name": "basic-network",
     "version": "1.0.0",
     "client": {
         "organization": "Org1",
@@ -51,16 +51,15 @@
         "peer0.org1.battery.com": {
             "url": "grpc://localhost:7051"
         },
-        "peer0.org2.battery.com": {
+        "peer1.org1.battery.com": {
             "url": "grpc://localhost:7051"
         },
-        "peer1.org1.battery.com": {
+        "peer0.org2.battery.com": {
             "url": "grpc://localhost:7051"
         },
         "peer1.org2.battery.com": {
             "url": "grpc://localhost:7051"
         }
-        
     },
     "certificateAuthorities": {
         "ca.battery.com": {

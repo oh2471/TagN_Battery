@@ -21,16 +21,16 @@ Organizations:
         ID: Org1MSP
 
         MSPDir: crypto-config/peerOrganizations/org1.battery.com/msp
-        Policies: &Org1Policies
-            Readers:
-                Type: Signature
-                Rule: "OR('Org1MSP.member')"
-            Writers:
-                Type: Signature
-                Rule: "OR('Org1MSP.member')"
-            Admins:
-                Type: Signature
-                Rule: "OR('Org1MSP.admin')"
+        # Policies: &Org1Policies
+        #     Readers:
+        #         Type: Signature
+        #         Rule: "OR('Org1MSP.member')"
+        #     Writers:
+        #         Type: Signature
+        #         Rule: "OR('Org1MSP.member')"
+        #     Admins:
+        #         Type: Signature
+        #         Rule: "OR('Org1MSP.admin')"
         AnchorPeers:
             - Host: peer0.org1.battery.com
               Port: 7051
@@ -39,16 +39,16 @@ Organizations:
         Name: Org2MSP
         ID: Org2MSP
         MSPDir: crypto-config/peerOrganizations/org2.battery.com/msp
-        Policies: &Org2Policies
-            Readers:
-                Type: Signature
-                Rule: "OR('Org2MSP.member')"
-            Writers:
-                Type: Signature
-                Rule: "OR('Org2MSP.member')"
-            Admins:
-                Type: Signature
-                Rule: "OR('Org2MSP.admin')"
+        # Policies: &Org2Policies
+        #     Readers:
+        #         Type: Signature
+        #         Rule: "OR('Org2MSP.member')"
+        #     Writers:
+        #         Type: Signature
+        #         Rule: "OR('Org2MSP.member')"
+        #     Admins:
+        #         Type: Signature
+        #         Rule: "OR('Org2MSP.admin')"
         AnchorPeers:
             - Host: peer0.org2.battery.com
               Port: 7051

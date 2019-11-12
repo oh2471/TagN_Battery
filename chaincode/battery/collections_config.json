@@ -1,18 +1,11 @@
+
 [
- {
-   "name": "collectionMarbles",
-   "policy": "OR('Org1MSP.member', 'Org2MSP.member')",
-   "requiredPeerCount": 0,
-   "maxPeerCount": 3,
-   "blockToLive":0,
-   "memberOnlyRead": true
-},
- {
-   "name": "collectionMarblePrivateDetails",
-   "policy": "OR('Org1MSP.member')",
-   "requiredPeerCount": 0,
-   "maxPeerCount": 3,
-   "blockToLive":0,
-   "memberOnlyRead": true
- }
+  {
+       "name": "personalInfo",
+       "policy": "OR('Org1MSP.member', 'Org2MSP.member')",
+       "requiredPeerCount": 0,
+       "maxPeerCount": 3,
+       "blockToLive":1000000,
+       "memberOnlyRead": true
+  }
 ]
