@@ -15,8 +15,10 @@ type SimpleAsset struct {
 // 배터리 구조체
 
 type Data struct {
-	Key   string `json:"key"`
-	Value string `json:"value"`
+	Phone   string `json:"phone"`
+	BatteryStatus string `json:"bs"`
+	BatteryCount string `json:"bc"`
+	Gps string `json:"gps"`
 }
 
 
@@ -58,7 +60,7 @@ func set(stub shim.ChaincodeStubInterface, args []string) (string, error) {
 	}
 
 	// JSON  변환
-	var data = Data{Key: args[0], Value: args[1]}
+	var data = Data{Phone: args[0], BatteryStatus: args[1], BatteryCount: args[2] , Gps: args[3]}
 	dataAsBytes, _ := json.Marshal(data)
 
 	err := stub.PutState(args[0], dataAsBytes)
