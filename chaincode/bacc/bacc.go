@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"bytes"
+	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	sc "github.com/hyperledger/fabric/protos/peer"
@@ -25,6 +26,7 @@ type Battery struct {
 	BatteryStatusEnd string `json:"bse"`
 	BatteryCount string `json:"bc"`
 	Gps string `json:"gps"`
+	Date string `json:"date"`
 }
 
 
@@ -86,7 +88,7 @@ func (s *ChainCode) addBattery(APIstub shim.ChaincodeStubInterface, args []strin
 	}
 
 	// 데이터 구조체 생성
-	var data = Battery{BatteryStatusStart: args[1],BatteryStatusEnd: args[2], BatteryCount: args[3] , Gps: args[4]}
+	var data = Battery{BatteryStatusStart: args[1],BatteryStatusEnd: args[2], BatteryCount: args[3] , Gps: args[4], Date: time.Now().Format("20060102150405")}
 	user.Battery=append(user.Battery,data)
 
 	// 월드스테이드 업데이트 
