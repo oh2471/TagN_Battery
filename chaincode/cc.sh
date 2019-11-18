@@ -44,6 +44,8 @@ docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n 
 docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","00000000000","10%","39%","77","경기도 화성시"]}'
 docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getBattery","00000000000"]}'
 docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getAllBattery"]}'
+docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getHistory","00000000000"]}'
+
 
 docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addUser","99999999999"]}'
 docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","99999999999","10%","39%","77","경기도 화성시"]}'
