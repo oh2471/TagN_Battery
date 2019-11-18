@@ -3,124 +3,159 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"bytes"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	"github.com/hyperledger/fabric/protos/peer"
+	sc "github.com/hyperledger/fabric/protos/peer"
 )
 
 
-type SimpleAsset struct {
+type ChainCode struct {
+}
+
+// 유저 구조체
+type User struct {
+	Phone   string `json:"phone"`
+	Battery []Battery `json:"battery"`
 }
 
 // 배터리 구조체
-
-type Data struct {
-	Phone   string `json:"phone"`
-	BatteryStatus string `json:"bs"`
+type Battery struct {
+	BatteryStatusStart string `json:"bss"`
+	BatteryStatusEnd string `json:"bse"`
 	BatteryCount string `json:"bc"`
 	Gps string `json:"gps"`
 }
 
 
-func (t *SimpleAsset) Init(stub shim.ChaincodeStubInterface) peer.Response {
-
+func (s *ChainCode) Init(APIstub shim.ChaincodeStubInterface) sc.Response {
 	return shim.Success(nil)
 }
 
 
 
-// 데이터 처리
-func (t *SimpleAsset) Invoke(stub shim.ChaincodeStubInterface) peer.Response {
+func (s *ChainCode) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-	fn, args := stub.GetFunctionAndParameters()
+	function, args := APIstub.GetFunctionAndParameters()
 
-	var result string
-	var err error
-	if fn == "set" {
-		result, err = set(stub, args)
-	} else if fn == "get" {
-		result, err = get(stub, args)
-	} else if fn == "getAllKeys" {
-		result, err = getAllKeys(stub)
-	} else {
-		return shim.Error("Not supported chaincode function.")
+	if function == "addUser" {
+		return s.addUser(APIstub, args)
+	} else if function == "addBattery" {
+		return s.addBattery(APIstub, args)
+	} else if function == "getBattery" {
+		return s.getBattery(APIstub, args)
+	} else if function == "getAllBattery" {
+		return s.getAllBattery(APIstub)
+	} 
+
+	return shim.Error("Invalid Smart Contract function name.")
+}
+
+// 유저 등록
+func (s *ChainCode) addUser(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+	if len(args) != 1 {
+		return shim.Error("fail!")
 	}
+	var user = User{Phone: args[0]}
+	userAsBytes, _ := json.Marshal(user)
+	APIstub.PutState(args[0], userAsBytes)
 
+	return shim.Success(nil)
+}
+
+// 데이터 입력
+func (s *ChainCode) addBattery(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+	if len(args) != 5 {
+		return shim.Error("Incorrect number of arguments. Expecting 5")
+	}
+	// 유저 정보 가져오기
+	userAsBytes, err := APIstub.GetState(args[0])
+	if err != nil{
+		jsonResp := "\"Error\":\"Failed to get state for "+ args[0]+"\"}"
+		return shim.Error(jsonResp)
+	} else if userAsBytes == nil{ // no State! error
+		jsonResp := "\"Error\":\"User does not exist: "+ args[0]+"\"}"
+		return shim.Error(jsonResp)
+	}
+	// 상태 확인
+	user := User{}
+	err = json.Unmarshal(userAsBytes, &user)
 	if err != nil {
 		return shim.Error(err.Error())
 	}
 
-	return shim.Success([]byte(result))
-}
+	// 데이터 구조체 생성
+	var data = Battery{BatteryStatusStart: args[1],BatteryStatusEnd: args[2], BatteryCount: args[3] , Gps: args[4]}
+	user.Battery=append(user.Battery,data)
 
-// 데이터 입력
-func set(stub shim.ChaincodeStubInterface, args []string) (string, error) {
-	if len(args) != 2 {
-		return "", fmt.Errorf("Incorrect arguments. Expecting a key and a value")
-	}
+	// 월드스테이드 업데이트 
+	userAsBytes, err = json.Marshal(user);
+	APIstub.PutState(args[0], userAsBytes)
 
-	// JSON  변환
-	var data = Data{Phone: args[0], BatteryStatus: args[1], BatteryCount: args[2] , Gps: args[3]}
-	dataAsBytes, _ := json.Marshal(data)
+	return shim.Success([]byte("rating is updated"))
 
-	err := stub.PutState(args[0], dataAsBytes)
-	if err != nil {
-		return "", fmt.Errorf("Failed to set asset: %s", args[0])
-	}
-	return string(dataAsBytes), nil
 }
 
 // 키값 데이터 조회
-func get(stub shim.ChaincodeStubInterface, args []string) (string, error) {
+func (s *ChainCode) getBattery(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 	if len(args) != 1 {
-		return "", fmt.Errorf("Incorrect arguments. Expecting a key")
+		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
-	value, err := stub.GetState(args[0])
+	value, err := APIstub.GetState(args[0])
 	if err != nil {
-		return "", fmt.Errorf("Failed to get asset: %s with error: %s", args[0], err)
+		return shim.Error("Failed to get Battery")
 	}
 	if value == nil {
-		return "", fmt.Errorf("Asset not found: %s", args[0])
+		return shim.Error("value not found")
 	}
-	return string(value), nil
+	return shim.Success(value)
 }
 
 // 모든 데이터 조회
-func getAllKeys(stub shim.ChaincodeStubInterface) (string, error) {
+func (s *ChainCode) getAllBattery(APIstub shim.ChaincodeStubInterface) sc.Response {
 
-	iter, err := stub.GetStateByRange("a", "z")
+	startKey := "00000000000"
+	endKey := "999999999999"
+
+	resultsIterator, err := APIstub.GetStateByRange(startKey, endKey)
 	if err != nil {
-		return "", fmt.Errorf("Failed to get all keys with error: %s", err)
+		return shim.Error(err.Error())
 	}
-	defer iter.Close()
+	defer resultsIterator.Close()
 
-	var buffer string
-	buffer = "["
+	var buffer bytes.Buffer
+	buffer.WriteString("[")
 
-	comma := false
-	for iter.HasNext() {
-		res, err := iter.Next()
+	bArrayMemberAlreadyWritten := false
+	for resultsIterator.HasNext() {
+		queryResponse, err := resultsIterator.Next()
 		if err != nil {
-			return "", fmt.Errorf("%s", err)
+			return shim.Error(err.Error())
 		}
-		if comma == true {
-			buffer += ","
+		if bArrayMemberAlreadyWritten == true {
+			buffer.WriteString(",")
 		}
-		buffer += string(res.Value)
+		buffer.WriteString("{\"Key\":")
+		buffer.WriteString("\"")
+		buffer.WriteString(queryResponse.Key)
+		buffer.WriteString("\"")
 
-		comma = true
+		buffer.WriteString(", \"Record\":")
+		buffer.WriteString(string(queryResponse.Value))
+		buffer.WriteString("}")
+		bArrayMemberAlreadyWritten = true
 	}
-	buffer += "]"
+	buffer.WriteString("]")
 
-	fmt.Println(buffer)
+	fmt.Printf("- queryAllBatterys:\n%s\n", buffer.String())
 
-	return string(buffer), nil
+	return shim.Success(buffer.Bytes())
 }
 
-// 메인함수 
 func main() {
-	if err := shim.Start(new(SimpleAsset)); err != nil {
-		fmt.Printf("Error starting SimpleAsset chaincode: %s", err)
+	if err := shim.Start(new(ChainCode)); err != nil {
+		fmt.Printf("Error starting ChainCode chaincode: %s", err)
 	}
 }

@@ -1,16 +1,15 @@
-
-docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/test/
+docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/bacc/
 export CORE_PEER_ADDRESS=peer1.org1.battery.com:7051
-docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/test/
+docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/bacc/
 
 export CORE_PEER_LOCALMSPID=Org2MSP
 export PEER0_ORG2_CA=/etc/hyperledger/crypto/peerOrganizations/org2.battery.com/peers/peer0.org2.battery.com/tls/ca.crt
 export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
 export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto/peerOrganizations/org2.battery.com/users/Admin@org2.battery.com/msp
 export CORE_PEER_ADDRESS=peer0.org2.battery.com:7051
-docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/test/
+docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/bacc/
 export CORE_PEER_ADDRESS=peer1.org2.battery.com:7051
-docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/test/
+docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/bacc/
 
 
 export CORE_PEER_LOCALMSPID=Org1MSP
@@ -40,12 +39,18 @@ export ORDERER_CA=/etc/hyperledger/crypto/ordererOrganizations/battery.com/order
 # docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["savePersonalInfo"]}'  --transient "{\"personalInfo\":\"$PI\"}"
 # docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getPersonalInfo","LEE"]}'
 
-docker exec cli peer chaincode instantiate -v 1.0 -C battery -n elca -c '{"Args":["a","100"]}' -P 'OR ("Org1MSP.member", "Org2MSP.member")'
-docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["set","b","200"]}'
-docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["get","b"]}'
+docker exec cli peer chaincode instantiate -v 1.0 -C battery -n elca -c '{"Args":["Init"]}' -P 'OR ("Org1MSP.member", "Org2MSP.member")'
+docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addUser","00000000000"]}'
+docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","00000000000","10%","39%","77","경기도 화성시"]}'
+docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getBattery","00000000000"]}'
+docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getAllBattery"]}'
 
+docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addUser","99999999999"]}'
+docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","99999999999","10%","39%","77","경기도 화성시"]}'
+docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getBattery","99999999999"]}'
 
-
+docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addUser","44444444444"]}'
+docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","44444444444","10%","39%","77","경기도 화성시"]}'
 
 #docker logs peer0.org2.battery.com 2>&1 | grep -i -a -E 'private|pvt|privdata'
 

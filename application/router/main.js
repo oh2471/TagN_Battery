@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql2');
-
+const registerUser = require("../registerUser");
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -39,18 +39,14 @@ router.get('/register', function (req, res) {
     res.render('register.html');
 });
 
-router.post('/register', function (req, res) {
-    let body = req.body;
-    let phone = body.phone;
-    let password = body.password;
-    let sql = { phone: phone, password: password };
-
-    var query = connection.query('insert into user set ?', sql, function (err, rows) {
-        if (err) { throw err; }
-        console.log("ok DB insert");
-    });
-
-    res.render('main.html');
+router.post('/register', async (req, res) => {
+    try {
+        let phone = req.body.userPN;
+        await registerUser.main(phone);
+        res.status(200).send(true);
+    } catch (err) {
+        res.status(500).send(false);
+    }
 });
 
 router.post('/login', function (req, res) {

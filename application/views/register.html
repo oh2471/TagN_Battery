@@ -4,21 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <title>Document</title>
 </head>
 
 <body>
     <h1> Register</h1>
-
-
-    <form action="/register" method="post">
-        phone : <input type="text" name="phone"><br>
-        password : <input type="text" name="password"><br>
-        <input type="submit">
-
-    </form>
-
+        phone : <input type="text" name="phone" id='phone' value=''><br>
+        password : <input type="password" name="password" id='password' value=''><br>
+        <input type="button" id="regBtn">
 
 </body>
+<script>
+    $('#regBtn').click(async ()=> {
+        var phone = document.getElementById('phone').value;
+        console.log(phone)
+        try {
+            var response = await fetch('http://127.0.0.1:8080/register', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                
+                body : JSON.stringify({userPN: phone})
+            })
+            if (response.ok) {
+                window.location.assign('http://127.0.0.1:8080/');
+            } else {
+                window.alert('ID & PW 확인');
+            }
 
+        } catch(err) {
+            console.log('err')
+        } 
+    })
+</script>
 </html>
