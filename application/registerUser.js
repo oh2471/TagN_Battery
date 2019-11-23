@@ -19,14 +19,6 @@ class registerUser {
                     const wallet = new FileSystemWallet(walletPath);
                     console.log(`Wallet path: ${walletPath}`);
             
-
-                    const userExists = await wallet.exists(data);
-                    if (userExists) {
-                        console.log(`An identity for the user ${data} already exists in the wallet`);
-                        return;
-                    }
-            
-                    
                     const adminExists = await wallet.exists('admin');
                     if (!adminExists) {
                         console.log('An identity for the admin user "admin" does not exist in the wallet');
@@ -34,7 +26,6 @@ class registerUser {
                         return;
                     }
             
-                    
                     const gateway = new Gateway();
                     await gateway.connect(ccp, { wallet, identity: 'admin', discovery: { enabled: false } });
                     
@@ -42,10 +33,10 @@ class registerUser {
                     const ca = gateway.getClient().getCertificateAuthority();
                     const adminIdentity = gateway.getCurrentIdentity();
                     
-                    
-                    const secret = await ca.register({ affiliation: 'org2.department1', enrollmentID: data, role: 'client' }, adminIdentity);
+  
+                    const secret = await ca.register({ affiliation: 'org1.department1', enrollmentID: data, role: 'client' }, adminIdentity);
                     const enrollment = await ca.enroll({ enrollmentID: data, enrollmentSecret: secret });
-                    const userIdentity = X509WalletMixin.createIdentity('Org2MSP', enrollment.certificate, enrollment.key.toBytes());
+                    const userIdentity = X509WalletMixin.createIdentity('Org1MSP', enrollment.certificate, enrollment.key.toBytes());
                     await wallet.import(data, userIdentity);
                     console.log(`Successfully registered and enrolled admin user ${data} and imported it into the wallet`);
                     resolve(true);

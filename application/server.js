@@ -3,7 +3,6 @@ const app = express();
 const path = require('path');
 const bodyParser = require('body-parser');
 const main = require('./router/main');
-const data = require('./router/data');
 const static = require('serve-static');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
@@ -28,5 +27,3 @@ app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 app.use('/main',main);
 app.use(main);
-app.use('/data',data);
-

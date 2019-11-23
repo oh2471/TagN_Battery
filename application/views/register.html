@@ -12,7 +12,7 @@
     <h1> Register</h1>
         phone : <input type="text" name="phone" id='phone' value=''><br>
         password : <input type="password" name="password" id='password' value=''><br>
-        <input type="button" id="regBtn">
+        <input type="button" id="regBtn" value="회원가입">
 
 </body>
 <script>
@@ -20,7 +20,7 @@
         var phone = document.getElementById('phone').value;
         console.log(phone)
         try {
-            var response = await fetch('http://127.0.0.1:8080/register', {
+            var response = await fetch('http://192.168.56.1:8080/register', {
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json',
@@ -29,7 +29,7 @@
                 body : JSON.stringify({userPN: phone})
             })
             if (response.ok) {
-                window.location.assign('http://127.0.0.1:8080/');
+                window.location.assign('http://192.168.56.1:8080/');
             } else {
                 window.alert('ID & PW 확인');
             }
@@ -39,4 +39,6 @@
         } 
     })
 </script>
+
+
 </html>

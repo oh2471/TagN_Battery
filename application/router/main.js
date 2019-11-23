@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('mysql2');
 const registerUser = require("../registerUser");
+const addbattery = require("../addbattery")
 
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -41,10 +42,33 @@ router.get('/register', function (req, res) {
 
 router.post('/register', async (req, res) => {
     try {
-        let phone = req.body.userPN;
+        let phone = req.body.userPN;  
         await registerUser.main(phone);
         res.status(200).send(true);
     } catch (err) {
+        console.log(err);
+        res.status(500).send(false);
+    }
+});
+
+router.get('/battery', function (req, res) {
+    res.render('battery.html');
+});
+
+router.post('/battery', async (req, res) => {
+    try {
+        const battery = {
+            phone : req.body.userPN,
+            batterystatus : req.body.batterystatus,
+            stationname : req.body.stationname,
+            stationgps : req.body.stationgps,
+            check : req.body.check
+        }
+        await addbattery.main(battery);
+        console.log("3");
+        res.status(200).send(true);
+    } catch (err) {
+        console.log(err);
         res.status(500).send(false);
     }
 });

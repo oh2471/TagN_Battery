@@ -1,0 +1,59 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    <h1> Register</h1>
+        phone : <input type="text" name="phone" id='phone' value=''><br>
+        batterystatus : <input type="text" name="batterystatus" id="batterystatus" value=''><br>
+        stationname : <input type="text" name="stationname" id="stationname" value=''><br>
+        stationgps : <input type="text" name="stationgps" id="stationgps" value=''><br>
+        check : <input type="text" name="check" id="check" value=''><br>
+        <input type="button" id="battBtn" value="정보전달">
+
+</body>
+
+<script>
+    $('#battBtn').click(async ()=> {
+        var phone = document.getElementById('phone').value;
+        var batterystatus = document.getElementById('batterystatus').value;
+        var stationname = document.getElementById('stationname').value;
+        var stationgps = document.getElementById('stationgps').value;
+        var check = document.getElementById('check').value;
+
+        console.log(phone)
+        try {
+            var response = await fetch('http://192.168.56.1:8080/battery', {
+                method: 'post',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body : JSON.stringify({
+                    userPN: phone,                
+                    batterystatus : batterystatus,
+                    stationname : stationname,
+                    stationgps : stationgps,
+                    check : check
+                })
+            })
+            if (response.ok) {
+                window.location.assign('http://192.168.56.1:8080/');
+            } else {
+                window.alert('데이터 전송 실패 ');
+            }
+
+        } catch(err) {
+            console.log('err')
+        } 
+    })
+</script>
+
+
+
+</html>

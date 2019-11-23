@@ -40,19 +40,13 @@ export ORDERER_CA=/etc/hyperledger/crypto/ordererOrganizations/battery.com/order
 # docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getPersonalInfo","LEE"]}'
 
 docker exec cli peer chaincode instantiate -v 1.0 -C battery -n elca -c '{"Args":["Init"]}' -P 'OR ("Org1MSP.member", "Org2MSP.member")'
-docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addUser","00000000000"]}'
-docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","00000000000","10%","39%","77","경기도 화성시"]}'
+docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","00000000000","10%","배터리 주유소","경기도 화성시","1"]}'
 docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getBattery","00000000000"]}'
+docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","00000000000","30%","배터리 주유소","경기도 화성시","0"]}'
 docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getAllBattery"]}'
 docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getHistory","00000000000"]}'
 
 
-docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addUser","99999999999"]}'
-docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","99999999999","10%","39%","77","경기도 화성시"]}'
-docker exec cli peer chaincode query -C battery -n elca -c '{"Args":["getBattery","99999999999"]}'
-
-docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addUser","44444444444"]}'
-docker exec cli peer chaincode invoke -o orderer.battery.com:7050 -C battery -n elca -c '{"Args":["addBattery","44444444444","10%","39%","77","경기도 화성시"]}'
 
 #docker logs peer0.org2.battery.com 2>&1 | grep -i -a -E 'private|pvt|privdata'
 

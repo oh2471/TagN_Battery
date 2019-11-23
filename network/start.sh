@@ -60,3 +60,7 @@ sleep 5
 #Join peer1.org2.battery.com to the channel.
 docker exec -e "CORE_PEER_LOCALMSPID=Org2MSP" -e "CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/users/Admin@org2.battery.com/msp" peer1.org2.battery.com peer channel join -b /etc/hyperledger/configtx/battery.block
 sleep 5
+
+docker exec cli peer chaincode install -n elca -v 1.0 -p github.com/bacc/
+sleep 3
+docker exec cli peer chaincode instantiate -v 1.0 -C battery -n elca -c '{"Args":["Init"]}' -P 'OR ("Org1MSP.member", "Org2MSP.member")'

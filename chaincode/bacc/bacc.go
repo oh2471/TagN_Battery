@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"bytes"
+	// "bytes"
 	"time"
-	"strconv"
+	// "strconv"
 
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -16,23 +16,28 @@ import (
 type ChainCode struct {
 }
 
-// 유저 구조체
-type User struct {
-	Phone   string `json:"phone"`
-	Battery Battery `json:"battery"`
-}
+// // 유저 구조체
+// type User struct {
+// 	Phone   string `json:"phone"`
+// 	Battery Battery `json:"battery"`
+// }
 
 // 배터리 구조체
 type Battery struct {
+	Phone string `json:"phone"`
 	BatteryStatusStart string `json:"bss"`
 	BatteryStatusEnd string `json:"bse"`
-	BatteryCount string `json:"bc"`
-	Gps string `json:"gps"`
-	Date string `json:"date"`
+	StationName string `json:"sn"`
+	StationGps string `json:"sgps"`
+	StartDate string `json:"sdate"`
+	EndDate string `json:"edate"`
 }
 
+var s_start = ""  // 배터리 충전 시작 상태
+var d_start = ""  // 배터리 충전 시작 시간
 
 func (s *ChainCode) Init(APIstub shim.ChaincodeStubInterface) sc.Response {
+	
 	return shim.Success(nil)
 }
 
@@ -42,9 +47,10 @@ func (s *ChainCode) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
 
 	function, args := APIstub.GetFunctionAndParameters()
 
-	if function == "addUser" {
-		return s.addUser(APIstub, args)
-	} else if function == "addBattery" {
+	// if function == "addUser" {
+	// 	return s.addUser(APIstub, args)
+	// } else 
+	  if function == "addBattery" {
 		return s.addBattery(APIstub, args)
 	} else if function == "getBattery" {
 		return s.getBattery(APIstub, args)
@@ -58,50 +64,59 @@ func (s *ChainCode) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response {
 }
 
 // 유저 등록
-func (s *ChainCode) addUser(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+// func (s *ChainCode) addUser(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 1 {
-		return shim.Error("fail!")
-	}
-	var user = User{Phone: args[0]}
-	userAsBytes, _ := json.Marshal(user)
-	APIstub.PutState(args[0], userAsBytes)
+// 	if len(args) != 1 {
+// 		return shim.Error("fail!")
+// 	}
+// 	var user = User{Phone: args[0]}
+// 	userAsBytes, _ := json.Marshal(user)
+// 	APIstub.PutState(args[0], userAsBytes)
 
-	return shim.Success(nil)
-}
+// 	return shim.Success(nil)
+// }
 
 // 데이터 입력
 func (s *ChainCode) addBattery(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 	if len(args) != 5 {
 		return shim.Error("Incorrect number of arguments. Expecting 5")
 	}
-	// 유저 정보 가져오기
-	userAsBytes, err := APIstub.GetState(args[0])
-	if err != nil{
-		jsonResp := "\"Error\":\"Failed to get state for "+ args[0]+"\"}"
-		return shim.Error(jsonResp)
-	} else if userAsBytes == nil{ // no State! error
-		jsonResp := "\"Error\":\"User does not exist: "+ args[0]+"\"}"
-		return shim.Error(jsonResp)
-	}
-	// 상태 확인
-	user := User{}
-	err = json.Unmarshal(userAsBytes, &user)
-	if err != nil {
-		return shim.Error(err.Error())
-	}
+	// // 유저 정보 가져오기
+	// userAsBytes, err := APIstub.GetState(args[0])
+	// if err != nil{
+	// 	jsonResp := "\"Error\":\"Failed to get state for "+ args[0]+"\"}"
+	// 	return shim.Error(jsonResp)
+	// } else if userAsBytes == nil{ // no State! error
+	// 	jsonResp := "\"Error\":\"User does not exist: "+ args[0]+"\"}"
+	// 	return shim.Error(jsonResp)
+	// }
+	// // 상태 확인
+	// user := User{}
+	// err = json.Unmarshal(userAsBytes, &user)
+	// if err != nil {
+	// 	return shim.Error(err.Error())
+	// }
 
 	// 배터리 구조체 값 업데이트
-	var data = Battery{BatteryStatusStart: args[1],BatteryStatusEnd: args[2], BatteryCount: args[3] , Gps: args[4], Date: time.Now().Format("20060102150405")}
-	user.Battery=data
 
-	// 월드스테이드 업데이트 
-	userAsBytes, err = json.Marshal(user);
-	APIstub.PutState(args[0], userAsBytes)
 
-	return shim.Success([]byte("rating is updated"))
+	if args[4] == "1" {
+		s_start = args[1] 
+		d_start = time.Now().Format("20060102150405")
+		_ = s_start
+		_ = d_start
+		return shim.Success([]byte("battery is update args true"))
 
+	} else if args[4] == "0" {
+		var data = Battery{Phone:args[0],BatteryStatusStart:s_start,BatteryStatusEnd:args[1],StationName:args[2],StationGps:args[3],StartDate:d_start ,EndDate: time.Now().Format("20060102150405")}
+		userAsBytes,_:=json.Marshal(data)
+		// 월드스테이드 업데이트 
+		APIstub.PutState(args[0], userAsBytes)
+		return shim.Success([]byte("battery is update args false"))
+	}
+	return shim.Error("Invalid Smart Contract Battery add.")
 }
+
 
 // 키값 데이터 조회
 func (s *ChainCode) getBattery(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -130,35 +145,27 @@ func (s *ChainCode) getAllBattery(APIstub shim.ChaincodeStubInterface) sc.Respon
 		return shim.Error(err.Error())
 	}
 	defer resultsIterator.Close()
-
-	var buffer bytes.Buffer
-	buffer.WriteString("[")
+	var buffer string
+	buffer ="["
 
 	bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
+		response, err := resultsIterator.Next()
 		if err != nil {
 			return shim.Error(err.Error())
 		}
 		if bArrayMemberAlreadyWritten == true {
-			buffer.WriteString(",")
+			buffer += ","
 		}
-		buffer.WriteString("{\"Key\":")
-		buffer.WriteString("\"")
-		buffer.WriteString(queryResponse.Key)
-		buffer.WriteString("\"")
 
-		buffer.WriteString(", \"Record\":")
-		buffer.WriteString(string(queryResponse.Value))
-		buffer.WriteString("}")
+		buffer += string(response.Value)
+
 		bArrayMemberAlreadyWritten = true
 	}
-	buffer.WriteString("]")
-
-	fmt.Printf("- queryAllBatterys:\n%s\n", buffer.String())
-
-	return shim.Success(buffer.Bytes())
+	buffer += "]"
+	return shim.Success([]byte(buffer))
 }
+
 
 // 키 이력 조회
 func (s *ChainCode) getHistory(stub shim.ChaincodeStubInterface, args []string) sc.Response {
@@ -178,8 +185,8 @@ func (s *ChainCode) getHistory(stub shim.ChaincodeStubInterface, args []string) 
 	defer resultsIterator.Close()
 
 
-	var buffer bytes.Buffer
-	buffer.WriteString("[")
+	var buffer string
+	buffer ="["
 
 	bArrayMemberAlreadyWritten := false
 	for resultsIterator.HasNext() {
@@ -189,38 +196,16 @@ func (s *ChainCode) getHistory(stub shim.ChaincodeStubInterface, args []string) 
 		}
 
 		if bArrayMemberAlreadyWritten == true {
-			buffer.WriteString(",")
-		}
-		buffer.WriteString("{\"TxId\":")
-		buffer.WriteString("\"")
-		buffer.WriteString(response.TxId)
-		buffer.WriteString("\"")
-
-		buffer.WriteString(", \"Value\":")
-		if response.IsDelete {
-			buffer.WriteString("null")
-		} else {
-			buffer.WriteString(string(response.Value))
+			buffer += ","
 		}
 
-		buffer.WriteString(", \"Timestamp\":")
-		buffer.WriteString("\"")
-		buffer.WriteString(time.Unix(response.Timestamp.Seconds, int64(response.Timestamp.Nanos)).String())
-		buffer.WriteString("\"")
+			buffer += string(response.Value)
 
-		buffer.WriteString(", \"IsDelete\":")
-		buffer.WriteString("\"")
-		buffer.WriteString(strconv.FormatBool(response.IsDelete))
-		buffer.WriteString("\"")
-
-		buffer.WriteString("}")
 		bArrayMemberAlreadyWritten = true
 	}
-	buffer.WriteString("]")
+	buffer += "]"
 
-	fmt.Printf("- getHistoryForBattery returning:\n%s\n", buffer.String())
-
-	return shim.Success(buffer.Bytes())
+	return shim.Success([]byte(buffer))
 }
 
 
